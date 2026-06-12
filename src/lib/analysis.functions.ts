@@ -143,7 +143,7 @@ export const analyzeReport = createServerFn({ method: "POST" })
         verdict: result.verdict,
         summary: result.summary,
         raw_text: data.text.slice(0, 50000),
-        result: result as unknown as Record<string, unknown>,
+        result: result as never,
       })
       .select("*")
       .single();
