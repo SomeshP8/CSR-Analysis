@@ -118,20 +118,17 @@ export const analyzeReport = createServerFn({ method: "POST" })
       result = await runAnalysis(companyName, data.text);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Analysis failed";
-      const { data: row } = await supabase
-        .from("reports")
-        .insert({
-          user_id: userId,
-          company_name: companyName,
-          source_type: data.sourceType,
-          status: "failed",
-          raw_text: data.text.slice(0, 50000),
-          error: message,
-        })
-        .select("*")
-        .single();
-      throw new Error(message + (row ? "" : ""));
+      await supabase.from("reports").insert({
+        user_id: userId,
+        company_name: companyName,
+        source_type: data.sourceType,
+        status: "failed",
+        raw_text: data.text.slice(0, 50000),
+        error: message,
+      });
+      throw new Error(message);
     }
+
 
     const { data: row, error } = await supabase
       .from("reports")
