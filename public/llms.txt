@@ -1,0 +1,10 @@
+# VeritasESG
+
+> AI-enhanced forensic accounting tool that detects greenwashing and irregularities in Corporate Social Responsibility (CSR) and ESG reports using semantic analysis, machine learning, and anomaly detection.
+
+VeritasESG lets auditors, regulators, and analysts upload a CSR/ESG report (PDF or text) or enter a company name and receive a forensic credibility score, risk level, flagged passages, quantitative anomalies, and external-context contradictions.
+
+## Pages
+
+- [Home](/): Product overview, the three pillars of analysis, and how it works.
+- [Sign in](/auth): Create an account or sign in to analyze reports.
