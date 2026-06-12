@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { generateText, Output } from "ai";
+import { generateObject } from "ai";
 
 import type { AnalysisResult, ReportRow } from "./analysis-types";
+
 
 const MAX_TEXT = 45000;
 
