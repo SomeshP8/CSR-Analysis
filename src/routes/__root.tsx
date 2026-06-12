@@ -80,22 +80,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "VeritasESG — AI Greenwashing Detection for CSR Reports" },
+      {
+        name: "description",
+        content:
+          "AI-powered forensic auditing that detects greenwashing and irregularities in CSR & ESG reports using semantic analysis, anomaly detection, and external triangulation.",
+      },
+      { name: "author", content: "VeritasESG" },
+      { property: "og:title", content: "VeritasESG — AI Greenwashing Detection" },
+      {
+        property: "og:description",
+        content:
+          "Upload any company's CSR report and get a forensic credibility score with flagged claims, anomalies, and risk analysis.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
       },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
