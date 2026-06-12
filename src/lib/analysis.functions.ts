@@ -85,19 +85,20 @@ async function runAnalysis(companyName: string, text: string): Promise<AnalysisR
   const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
   const gateway = createLovableAiGatewayProvider(apiKey);
 
-  const { experimental_output } = await generateText({
+  const { object } = await generateObject({
     model: gateway("google/gemini-3-flash-preview"),
     system: SYSTEM_PROMPT,
     prompt: buildPrompt(companyName, text),
-    experimental_output: Output.object({ schema: analysisSchema }),
+    schema: analysisSchema,
   });
 
-  const result = experimental_output as AnalysisResult;
+  const result = object as AnalysisResult;
   if (companyName && (!result.companyName || result.companyName === "Unknown")) {
     result.companyName = companyName;
   }
   return result;
 }
+
 
 export const analyzeReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
