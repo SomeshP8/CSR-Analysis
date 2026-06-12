@@ -21,6 +21,6 @@ export async function extractPdfText(
     parts.push(text);
     onProgress?.(i, doc.numPages);
   }
-  await doc.destroy();
+  await doc.cleanup();
   return parts.join("\n\n").replace(/\s+\n/g, "\n").trim();
 }
