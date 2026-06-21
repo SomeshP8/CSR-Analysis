@@ -95,18 +95,93 @@ ${text.slice(0, MAX_TEXT)}
 --- END REPORT TEXT ---`;
 }
 
-function extractJson(raw: string): unknown {
+/** Strip code fences and any prose around the JSON object. */
+function isolateJsonBlock(raw: string): string {
   let s = raw.trim();
-  // Strip code fences if present
   const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fenceMatch) s = fenceMatch[1].trim();
-  // Fall back to first { ... last }
   const start = s.indexOf("{");
+  if (start === -1) return s;
   const end = s.lastIndexOf("}");
-  if (start !== -1 && end !== -1 && end > start) {
-    s = s.slice(start, end + 1);
+  if (end > start) return s.slice(start, end + 1);
+  // No closing brace — likely truncated; take from first "{" onward.
+  return s.slice(start);
+}
+
+/** Remove trailing commas before } or ] which are invalid JSON. */
+function stripTrailingCommas(s: string): string {
+  return s.replace(/,\s*([}\]])/g, "$1");
+}
+
+/**
+ * Repair a truncated JSON object by closing any open strings, arrays,
+ * and objects, walking the structure while respecting string escapes.
+ */
+function repairTruncatedJson(s: string): string {
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  let result = s;
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+    } else if (ch === "{") {
+      stack.push("}");
+    } else if (ch === "[") {
+      stack.push("]");
+    } else if (ch === "}" || ch === "]") {
+      stack.pop();
+    }
   }
-  return JSON.parse(s);
+
+  // Close an unterminated string.
+  if (inString) result += '"';
+  // Remove a dangling trailing comma left after truncation.
+  result = result.replace(/,\s*$/, "");
+  // Close any still-open containers (innermost first).
+  while (stack.length) result += stack.pop();
+  return result;
+}
+
+function tryParse(s: string): unknown | undefined {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return undefined;
+  }
+}
+
+function extractJson(raw: string): unknown {
+  const block = isolateJsonBlock(raw);
+
+  // 1. Direct parse.
+  let parsed = tryParse(block);
+  if (parsed !== undefined) return parsed;
+
+  // 2. Strip trailing commas.
+  const noTrailing = stripTrailingCommas(block);
+  parsed = tryParse(noTrailing);
+  if (parsed !== undefined) return parsed;
+
+  // 3. Repair truncation, then strip trailing commas again.
+  const repaired = stripTrailingCommas(repairTruncatedJson(noTrailing));
+  parsed = tryParse(repaired);
+  if (parsed !== undefined) return parsed;
+
+  // Throw the original error for the caller to handle.
+  return JSON.parse(block);
 }
 
 async function runAnalysis(companyName: string, text: string): Promise<AnalysisResult> {
