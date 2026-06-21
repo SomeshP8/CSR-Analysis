@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { generateObject } from "ai";
+import { generateText } from "ai";
 
 import type { AnalysisResult, ReportRow } from "./analysis-types";
 
@@ -73,9 +73,40 @@ function buildPrompt(companyName: string, text: string): string {
     companyName ? ` from "${companyName}"` : ""
   }. Produce a structured forensic assessment.
 
+Respond with ONLY a single valid JSON object (no markdown, no code fences, no commentary) matching exactly this shape:
+{
+  "companyName": string,
+  "credibilityScore": number (0-100),
+  "riskLevel": "low" | "medium" | "high",
+  "verdict": string,
+  "summary": string,
+  "pillarScores": { "linguistic": number, "quantitative": number, "external": number },
+  "toneAnalysis": { "sentiment": string, "incongruence": string },
+  "linguisticFindings": [ { "quote": string, "issue": string, "severity": "low"|"medium"|"high", "explanation": string } ],
+  "quantitativeFindings": [ { "metric": string, "claim": string, "concern": string, "severity": "low"|"medium"|"high" } ],
+  "externalFindings": [ { "claim": string, "externalContext": string, "contradiction": string, "severity": "low"|"medium"|"high" } ],
+  "vagueClaims": string[],
+  "concreteCommitments": string[],
+  "recommendations": string[]
+}
+
 --- BEGIN REPORT TEXT ---
 ${text.slice(0, MAX_TEXT)}
 --- END REPORT TEXT ---`;
+}
+
+function extractJson(raw: string): unknown {
+  let s = raw.trim();
+  // Strip code fences if present
+  const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch) s = fenceMatch[1].trim();
+  // Fall back to first { ... last }
+  const start = s.indexOf("{");
+  const end = s.lastIndexOf("}");
+  if (start !== -1 && end !== -1 && end > start) {
+    s = s.slice(start, end + 1);
+  }
+  return JSON.parse(s);
 }
 
 async function runAnalysis(companyName: string, text: string): Promise<AnalysisResult> {
@@ -85,14 +116,25 @@ async function runAnalysis(companyName: string, text: string): Promise<AnalysisR
   const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
   const gateway = createLovableAiGatewayProvider(apiKey);
 
-  const { object } = await generateObject({
+  const { text: rawText } = await generateText({
     model: gateway("google/gemini-3-flash-preview"),
     system: SYSTEM_PROMPT,
     prompt: buildPrompt(companyName, text),
-    schema: analysisSchema,
   });
 
-  const result = object as AnalysisResult;
+  let parsed: unknown;
+  try {
+    parsed = extractJson(rawText);
+  } catch {
+    throw new Error("The AI returned an unreadable response. Please try again.");
+  }
+
+  const validated = analysisSchema.safeParse(parsed);
+  if (!validated.success) {
+    throw new Error("The AI response did not match the expected format. Please try again.");
+  }
+
+  const result = validated.data as AnalysisResult;
   if (companyName && (!result.companyName || result.companyName === "Unknown")) {
     result.companyName = companyName;
   }
