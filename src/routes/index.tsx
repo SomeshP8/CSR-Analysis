@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   LeafyGreen,
   ScanSearch,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import heroImage from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
@@ -61,6 +63,13 @@ const steps = [
 ];
 
 function Landing() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) navigate({ to: "/dashboard", replace: true });
+  }, [user, loading, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
