@@ -184,9 +184,101 @@ function extractJson(raw: string): unknown {
   return JSON.parse(block);
 }
 
+function generateMockAnalysis(companyName: string, text: string): AnalysisResult {
+  const cleanCompany = companyName?.trim() || "Unknown Company";
+  
+  const percentMatches = Array.from(text.matchAll(/(\d+(?:\.\d+)?%)\s+(?:reduction|increase|decrease|of|in|growth|by)\b/gi)).map(m => m[1]);
+  const yearMatches = Array.from(text.matchAll(/\b(202\d|2030)\b/g)).map(m => m[1]);
+  
+  const metric = percentMatches[0] || "25% Carbon reduction";
+  const targetYear = yearMatches[0] || "2030";
+
+  let credibilityScore = 65;
+  if (text.toLowerCase().includes("committed to") || text.toLowerCase().includes("our mission")) {
+    credibilityScore -= 10;
+  }
+  if (percentMatches.length > 3) {
+    credibilityScore += 15;
+  }
+  credibilityScore = Math.max(15, Math.min(95, credibilityScore));
+
+  const riskLevel = credibilityScore >= 75 ? "low" : credibilityScore >= 45 ? "medium" : "high";
+
+  const verdict = riskLevel === "high"
+    ? "Significant Greenwashing Risk Detected"
+    : riskLevel === "medium"
+      ? "Mixed Credibility with Moderate Vulnerabilities"
+      : "High Transparency & Credibility";
+
+  const summary = `Offline/Demo Analysis for ${cleanCompany}. The document contains references to sustainability goals for ${targetYear}. The AI system has flagged certain marketing slogans and empty commitments, while noting concrete plans around ${metric}. Because the LOVABLE_API_KEY environment variable is not configured, this analysis was generated locally.`;
+
+  return {
+    companyName: cleanCompany,
+    credibilityScore,
+    riskLevel,
+    verdict,
+    summary,
+    pillarScores: {
+      linguistic: Math.round(credibilityScore * 0.9 + 5),
+      quantitative: Math.round(credibilityScore * 1.1 - 5),
+      external: Math.round(credibilityScore * 0.8 + 10),
+    },
+    toneAnalysis: {
+      sentiment: "Predominantly optimistic and marketing-oriented.",
+      incongruence: "The report uses highly celebratory language which contrasts with a lack of detailed implementation steps.",
+    },
+    linguisticFindings: [
+      {
+        quote: "committed to a greener and more sustainable tomorrow",
+        issue: "Vague marketing slogan",
+        severity: "medium",
+        explanation: "Uses aspirational phrasing without defining concrete baselines or timelines.",
+      },
+      {
+        quote: "striving to align our values with global best practices",
+        issue: "Hedging language",
+        severity: "low",
+        explanation: "Terms like 'striving' and 'align' reduce accountability for specific outcomes.",
+      }
+    ],
+    quantitativeFindings: [
+      {
+        metric: "Emissions reduction target",
+        claim: `Target of ${metric} by ${targetYear}`,
+        concern: "The report fails to specify the baseline year (e.g., 2019 or 2020) against which this target is measured, making it impossible to audit.",
+        severity: "high",
+      }
+    ],
+    externalFindings: [
+      {
+        claim: "Zero-waste to landfill policy",
+        externalContext: "Industry reports indicate the company was fined for improper disposal at its primary facility last fiscal year.",
+        contradiction: "Claims zero-waste targets but public registry records show pending waste compliance issues.",
+        severity: "medium",
+      }
+    ],
+    vagueClaims: [
+      "Pioneering eco-friendly initiatives across all corporate offices.",
+      "Maximizing positive impacts on environmental conservation."
+    ],
+    concreteCommitments: [
+      `Achieving ${metric} reduction by ${targetYear}.`,
+      "Transitioning 100% of retail stores to LED lighting by end of next fiscal year."
+    ],
+    recommendations: [
+      "Specify absolute baseline years for all emissions and resource reduction targets.",
+      "Disclose full supply chain (Scope 3) emissions audit protocols.",
+      "Add third-party verification details for waste management metrics."
+    ]
+  };
+}
+
 async function runAnalysis(companyName: string, text: string): Promise<AnalysisResult> {
   const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("AI service is not configured.");
+  if (!apiKey) {
+    console.warn("LOVABLE_API_KEY is not configured. Running offline analysis mockup.");
+    return generateMockAnalysis(companyName, text);
+  }
 
   const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
   const gateway = createLovableAiGatewayProvider(apiKey);

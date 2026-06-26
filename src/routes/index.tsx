@@ -57,7 +57,7 @@ const pillars = [
 ];
 
 const steps = [
-  { icon: FileSearch, title: "Upload or paste", body: "Drop a CSR/ESG PDF, paste report text, or just enter a company name." },
+  { icon: FileSearch, title: "Upload or paste", body: "Drop a CSR/ESG PDF or paste report text to begin the analysis." },
   { icon: Brain, title: "AI runs forensics", body: "Three analytical pillars score credibility and surface flagged passages." },
   { icon: ShieldCheck, title: "Review the verdict", body: "Get a credibility score, risk level, and an evidence trail for human review." },
 ];

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/analyze")({
   component: AnalyzePage,
 });
 
-type Tab = "pdf" | "text" | "company";
+type Tab = "pdf" | "text";
 
 function AnalyzePage() {
   const navigate = useNavigate();
@@ -69,15 +69,6 @@ function AnalyzePage() {
   }
 
   function submit() {
-    if (tab === "company") {
-      if (company.trim().length < 2) return toast.error("Enter a company name.");
-      mutation.mutate({
-        companyName: company.trim(),
-        sourceType: "company",
-        text: `Provide a forensic greenwashing assessment of the most recent publicly known CSR/ESG positioning of the company "${company.trim()}". Base the analysis on widely reported sustainability claims, commitments, controversies, fines, and credibility signals associated with this company. Clearly note this assessment is derived from general knowledge rather than a specific uploaded document.`,
-      });
-      return;
-    }
     const content = tab === "pdf" ? pdfText : text;
     if (content.trim().length < 50) {
       return toast.error("Provide at least 50 characters of report text.");
@@ -92,14 +83,14 @@ function AnalyzePage() {
       <div className="mb-6">
         <h1 className="font-display text-3xl font-bold">Analyze a report</h1>
         <p className="mt-1 text-muted-foreground">
-          Upload a CSR/ESG report, paste its text, or look up a company. The AI runs semantic,
+          Upload a CSR/ESG report or paste its text. The AI runs semantic,
           quantitative, and external-context analysis.
         </p>
       </div>
 
       <Card className="p-6">
         <div className="mb-5 space-y-2">
-          <Label htmlFor="company">Company name {tab !== "company" && <span className="text-muted-foreground">(optional)</span>}</Label>
+          <Label htmlFor="company">Company name <span className="text-muted-foreground">(optional)</span></Label>
           <div className="relative">
             <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input id="company" className="pl-9" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Acme Energy Corp" />
@@ -107,10 +98,9 @@ function AnalyzePage() {
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="pdf"><Upload className="mr-1.5 h-4 w-4" />PDF</TabsTrigger>
             <TabsTrigger value="text"><FileText className="mr-1.5 h-4 w-4" />Text</TabsTrigger>
-            <TabsTrigger value="company"><Building2 className="mr-1.5 h-4 w-4" />Company</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pdf" className="mt-4">
@@ -136,16 +126,7 @@ function AnalyzePage() {
               className="min-h-[220px] resize-y"
             />
             <p className="mt-2 text-xs text-muted-foreground">{text.length.toLocaleString()} characters</p>
-          </TabsContent>
-
-          <TabsContent value="company" className="mt-4">
-            <div className="rounded-lg border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
-              <Sparkles className="mb-2 h-5 w-5 text-accent" />
-              Enter a company name above and the AI will assess its publicly known sustainability
-              claims and credibility signals from general knowledge.
-            </div>
-          </TabsContent>
-        </Tabs>
+          </TabsContent>        </Tabs>
 
         <Button className="mt-6 w-full" size="lg" onClick={submit} disabled={busy}>
           {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ScanSearch className="mr-2 h-4 w-4" />}
