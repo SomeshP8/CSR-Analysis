@@ -3,7 +3,7 @@ import { d as useNavigate, L as Link } from "../_libs/tanstack__react-router.mjs
 import { B as Button } from "./button-DjOZMqFS.mjs";
 import { C as Card } from "./card-BtiUI6Md.mjs";
 import { u as useAuth } from "./use-auth-Cfr24KXP.mjs";
-import { h as heroImage } from "./router-Dqku9KSM.mjs";
+import { h as heroImage } from "./router-D_FldqoM.mjs";
 import "../_libs/sonner.mjs";
 import { L as LeafyGreen, S as ScanSearch, A as ArrowRight, M as MessageSquareWarning, C as Calculator, G as Globe, F as FileSearch, B as Brain, d as ShieldCheck, e as CircleCheck } from "../_libs/lucide-react.mjs";
 import "../_libs/tanstack__router-core.mjs";

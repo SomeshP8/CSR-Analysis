@@ -228,7 +228,7 @@ const Route$5 = createFileRoute("/_authenticated")({
   component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
 const heroImage = "/assets/hero-Bt5-PWCU.jpg";
-const $$splitComponentImporter$4 = () => import("./index-lYBU8b1_.mjs");
+const $$splitComponentImporter$4 = () => import("./index-C15H5QD1.mjs");
 const Route$4 = createFileRoute("/")({
   head: () => ({
     meta: [{
@@ -252,21 +252,21 @@ const Route$4 = createFileRoute("/")({
   }),
   component: lazyRouteComponent($$splitComponentImporter$4, "component")
 });
-const $$splitComponentImporter$3 = () => import("./history-Bjrzffga.mjs");
+const $$splitComponentImporter$3 = () => import("./history-DPSnc_ny.mjs");
 const Route$3 = createFileRoute("/_authenticated/history")({
   component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
-const $$splitComponentImporter$2 = () => import("./dashboard-CC_kXe_k.mjs");
+const $$splitComponentImporter$2 = () => import("./dashboard-59UCwzTj.mjs");
 const Route$2 = createFileRoute("/_authenticated/dashboard")({
   component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-const $$splitComponentImporter$1 = () => import("./analyze-BwwD22lW.mjs");
+const $$splitComponentImporter$1 = () => import("./analyze-BSnam8hz.mjs");
 const Route$1 = createFileRoute("/_authenticated/analyze")({
   component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
 const $$splitNotFoundComponentImporter = () => import("./reports._id-CAnU7qss.mjs");
 const $$splitErrorComponentImporter = () => import("./reports._id-CCCZAyz9.mjs");
-const $$splitComponentImporter = () => import("./reports._id-CBJtbbed.mjs");
+const $$splitComponentImporter = () => import("./reports._id-hdSSJdvE.mjs");
 const Route = createFileRoute("/_authenticated/reports/$id")({
   component: lazyRouteComponent($$splitComponentImporter, "component"),
   errorComponent: lazyRouteComponent($$splitErrorComponentImporter, "errorComponent"),

@@ -1,6 +1,6 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { L as Link } from "../_libs/tanstack__react-router.mjs";
-import { u as useServerFn, d as deleteReport } from "./analysis.functions-CfEQkwuk.mjs";
+import { u as useServerFn, d as deleteReport } from "./analysis.functions-R56fSK8q.mjs";
 import { u as useQueryClient } from "../_libs/tanstack__react-query.mjs";
 import { t as toast } from "../_libs/sonner.mjs";
 import { s as scoreLabel } from "./analysis-types-BYuhjYc1.mjs";
