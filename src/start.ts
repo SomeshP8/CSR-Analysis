@@ -22,5 +22,8 @@ const csrfMiddleware = createCsrfMiddleware();
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [csrfMiddleware, errorMiddleware],
+  requestMiddleware:
+    process.env.NETLIFY === "true"
+      ? [csrfMiddleware, errorMiddleware]
+      : [errorMiddleware],
 }));
