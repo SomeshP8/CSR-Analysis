@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated deploy/build artifacts
+.netlify
+build-output.txt
