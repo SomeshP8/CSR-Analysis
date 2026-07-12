@@ -94,14 +94,18 @@ In Supabase, open Table Editor and confirm these tables are present:
 
 ## 3) Make sure your app points to the same project
 
-Your app should use the same Supabase URL and anon key that belong to that project.
+Your app must use the same Supabase project URL and publishable key for both local and deployed builds.
+
+The app supports both raw and Vite-prefixed environment variables. If you set the raw values, they will automatically be mapped to `VITE_` values during build.
 
 ```env
-VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_PUBLISHABLE_KEY=your-anon-key
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ```
+
+For local development, either raw or `VITE_` variables are fine. For Netlify deployment, set the same values in your site environment settings.
 
 ## 4) Restart the app
 

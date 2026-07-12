@@ -311,7 +311,7 @@ async function runAnalysis(companyName: string, text: string): Promise<AnalysisR
 
 export const analyzeReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     z.object({
       companyName: z.string().trim().max(200).optional(),
       text: z.string().trim().min(50, "Please provide at least 50 characters of report text.").max(200000),
@@ -375,7 +375,7 @@ export const listReports = createServerFn({ method: "GET" })
 
 export const getReport = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }): Promise<ReportRow | null> => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
@@ -390,7 +390,7 @@ export const getReport = createServerFn({ method: "GET" })
 
 export const deleteReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     const { supabase, userId } = context;
     const { error } = await supabase
