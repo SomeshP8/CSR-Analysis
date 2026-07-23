@@ -1,13 +1,15 @@
 // Client-only helper: extract text from a PDF File using pdf.js.
-// pdfjs-dist ships an ESM worker; we point the worker to the bundled file URL.
+// We use a CDN worker URL to avoid Vite's import-analysis plugin from trying
+// to parse the pre-compiled, minified pdf.worker.min.mjs bundle (which breaks
+// under Vite 7's stricter JS parser).
 export async function extractPdfText(
   file: File,
   onProgress?: (page: number, total: number) => void,
 ): Promise<string> {
   const pdfjs = await import("pdfjs-dist");
-  // Wire up the worker using a bundler-friendly URL.
-  const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
-  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+
+  // Point to the matching CDN worker so Vite never has to bundle it.
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
   const buffer = await file.arrayBuffer();
   const doc = await pdfjs.getDocument({ data: buffer }).promise;

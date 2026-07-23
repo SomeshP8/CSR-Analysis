@@ -319,13 +319,16 @@ export const analyzeReport = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data, context }): Promise<ReportRow> => {
+    console.log("Analyzing report for user", context.userId, "company", data.companyName);
     const { supabase, userId } = context;
     const companyName = data.companyName?.trim() || "Unknown Company";
 
     let result: AnalysisResult;
     try {
       result = await runAnalysis(companyName, data.text);
+      console.log("runAnalysis success", !!result);
     } catch (err) {
+      console.error("runAnalysis error:", err);
       const message = err instanceof Error ? err.message : "Analysis failed";
       await supabase.from("reports").insert({
         user_id: userId,
@@ -338,7 +341,7 @@ export const analyzeReport = createServerFn({ method: "POST" })
       throw new Error(message);
     }
 
-
+    console.log("Inserting to Supabase...");
     const { data: row, error } = await supabase
       .from("reports")
       .insert({
@@ -356,7 +359,11 @@ export const analyzeReport = createServerFn({ method: "POST" })
       .select("*")
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("Supabase insert error:", error);
+      throw new Error(error.message);
+    }
+    console.log("Insert success!");
     return row as unknown as ReportRow;
   });
 
